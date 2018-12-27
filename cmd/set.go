@@ -15,20 +15,20 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"time"
-	"encoding/json"
-	"io/ioutil"
 
 	"github.com/spf13/cobra"
 )
 
 type meeting struct {
-	Id        int    `json:"id"`
-	Title     string `json:"title"`
-	StartTime string `json:"startTime"`
-	EndTime   string `json:"endTime"`
+	Id        int       `json:"id"`
+	Title     string    `json:"title"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
 }
 
 // setCmd represents the set command
@@ -53,12 +53,19 @@ For example:
 	},
 }
 
-func buildInputDays(days []string) (string, string) {
+func buildInputDays(days []string) (time.Time, time.Time) {
 	const layout = "2006-01-02 15:04"
-	prefix := strings.Split(time.Now().Format(layout), " ")[0]
-	s := strings.Join([]string{prefix, days[0]}, " ")
-	e := strings.Join([]string{prefix, days[1]}, " ")
-	return s, e
+	now := time.Now()
+	prefix := strings.Split(now.Format(layout), " ")[0]
+	start := buildDay(days[0], prefix, layout)
+	end := buildDay(days[1], prefix, layout)
+	return start, end
+}
+
+func buildDay(day string, prefix string, layout string) time.Time {
+	dayString := strings.Join([]string{prefix, day}, " ")
+	dayTime, _ := time.ParseInLocation(layout, dayString, time.Now().Location())
+	return dayTime
 }
 
 func init() {

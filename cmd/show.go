@@ -54,34 +54,52 @@ to quickly create a Cobra application.`,
 		now := time.Now()
 		startD := time.Date(now.Year(), now.Month(), now.Day(), 10, 0, 0, 0, now.Location())
 		endD := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, now.Location())
-		CalcPomos([]meeting{mtg}, startD, endD, 25, 5)
-		display([]meeting{mtg})
+		pomos := CalcPomos([]meeting{mtg}, startD, endD, 25, 5)
+		display([]meeting{mtg}, pomos)
 	},
 }
 
-func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest int) {
-	var maxPomoCount int = int(math.Round(end.Sub(start).Minutes() / float64(unit+rest)))
+func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest int) []Pomo {
+	maxPomoCount := int(math.Round(end.Sub(start).Minutes() / float64(unit+rest)))
 	pomos := make([]Pomo, maxPomoCount)
-	// create pomo
 	s := start
 	e := s.Add(time.Duration(unit) * time.Minute)
-	for i := 0; i <= maxPomoCount; i++ {
-		pomo := Pomo{i + 1, "", s, e}
+	count := 0
+	for i := 0; i < maxPomoCount; i++ {
 		if !end.After(e) {
 			break
 		}
-		pomos[i] = pomo
+		pomo := Pomo{0, "", s, e}
+		for _, mtg := range mtgs {
+			if checkConflict(mtg, pomo) {
+				count++
+				pomo.Id = count
+				pomos[count-1] = pomo
+			}
+		}
 		s = e.Add(time.Duration(rest) * time.Minute)
 		e = s.Add(time.Duration(unit) * time.Minute)
 	}
-	for _, pomo := range pomos {
-		fmt.Println(pomo)
-	}
+	return pomos
 }
 
-func display(mtgs []meeting) {
-	mtg := mtgs[0]
-	fmt.Printf("======= %v %v - %v =======\n", mtg.Title, mtg.StartTime, mtg.EndTime)
+func checkConflict(mtg meeting, pomo Pomo) bool {
+	return !pomo.EndTime.After(mtg.StartTime) || !pomo.StartTime.Before(mtg.EndTime)
+}
+
+func display(mtgs []meeting, pomos []Pomo) {
+	const layout = "15:04"
+	for _, pomo := range pomos {
+		if pomo.Id == 0 {
+			break
+		}
+		for _, mtg := range mtgs {
+			if !mtg.StartTime.After(pomo.StartTime) && !mtg.EndTime.Before(pomo.StartTime) {
+				fmt.Printf("==== %s %s-%s =====\n", mtg.Title, mtg.StartTime.Format(layout), mtg.EndTime.Format(layout))
+			}
+		}
+		fmt.Printf("[] %v %s-%s %s \n", pomo.Id, pomo.StartTime.Format(layout), pomo.EndTime.Format(layout), pomo.Name)
+	}
 }
 
 func init() {
