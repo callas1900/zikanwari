@@ -19,6 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"io/ioutil"
+	"log"
+	"encoding/json"
 )
 
 // showCmd represents the show command
@@ -32,8 +35,13 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("show called")
-		fmt.Println(Conf)
+		content, err := ioutil.ReadFile(Conf.DataJsonPath)
+		if (err != nil) {
+			log.Fatal(err)
+		}
+		var mtg meeting
+		json.Unmarshal(content, &mtg)
+		fmt.Printf("======= %v %v - %v =======\n", mtg.Title, mtg.StartTime, mtg.EndTime)
 	},
 }
 
