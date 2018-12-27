@@ -18,16 +18,15 @@ import (
 	"fmt"
 	"os"
 
+	"log"
+
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
-
 )
 
-
 type Config struct {
-	DataJsonPath string
+	DataJSONPath string
 }
 
 var cfgFile string
@@ -92,7 +91,7 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		log.Println("Using config file:", viper.ConfigFileUsed())
-	} 
+	}
 
 	if err := viper.Unmarshal(&Conf); err != nil {
 		log.Fatal(err)

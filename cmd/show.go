@@ -16,13 +16,22 @@ package cmd
 
 import (
 	"fmt"
+	"math"
+	"time"
 
 	"github.com/spf13/cobra"
 
+	"encoding/json"
 	"io/ioutil"
 	"log"
-	"encoding/json"
 )
+
+type Pomo struct {
+	Id        int       `json:"id"`
+	Name      string    `json:"title"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+}
 
 // showCmd represents the show command
 var showCmd = &cobra.Command{
@@ -35,14 +44,44 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		content, err := ioutil.ReadFile(Conf.DataJsonPath)
-		if (err != nil) {
+		content, err := ioutil.ReadFile(Conf.DataJSONPath)
+		if err != nil {
 			log.Fatal(err)
 		}
 		var mtg meeting
 		json.Unmarshal(content, &mtg)
-		fmt.Printf("======= %v %v - %v =======\n", mtg.Title, mtg.StartTime, mtg.EndTime)
+		// TODO: dummy impl
+		now := time.Now()
+		startD := time.Date(now.Year(), now.Month(), now.Day(), 10, 0, 0, 0, now.Location())
+		endD := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, now.Location())
+		CalcPomos([]meeting{mtg}, startD, endD, 25, 5)
+		display([]meeting{mtg})
 	},
+}
+
+func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest int) {
+	var maxPomoCount int = int(math.Round(end.Sub(start).Minutes() / float64(unit+rest)))
+	pomos := make([]Pomo, maxPomoCount)
+	// create pomo
+	s := start
+	e := s.Add(time.Duration(unit) * time.Minute)
+	for i := 0; i <= maxPomoCount; i++ {
+		pomo := Pomo{i + 1, "", s, e}
+		if !end.After(e) {
+			break
+		}
+		pomos[i] = pomo
+		s = e.Add(time.Duration(rest) * time.Minute)
+		e = s.Add(time.Duration(unit) * time.Minute)
+	}
+	for _, pomo := range pomos {
+		fmt.Println(pomo)
+	}
+}
+
+func display(mtgs []meeting) {
+	mtg := mtgs[0]
+	fmt.Printf("======= %v %v - %v =======\n", mtg.Title, mtg.StartTime, mtg.EndTime)
 }
 
 func init() {
