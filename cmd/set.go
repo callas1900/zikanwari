@@ -41,15 +41,18 @@ var setCmd = &cobra.Command{
 	Long: `set meeting schedule.
 For example:
 	* zikanwari set Mtg 11:00-13:00
+	* zikanwari set Launch with team 11:00-13:00
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(args)
-		inputs := strings.Split(args[1], "-")
-		start, end := buildInputDays(inputs)
+		inputDays := strings.Split(args[len(args)-1], "-")
+		start, end := buildInputDays(inputDays)
 		if !checkMeetingAvailable(start, end) {
 			fmt.Errorf("conflict with another meeting\n")
 		}
-		m := meeting{1, args[0], Schedule{start, end}}
+		args = args[:len(args)-1]
+		title := strings.Join(args, " ")
+		m := meeting{1, title, Schedule{start, end}}
 		b, err := json.Marshal(m)
 		if err != nil {
 			fmt.Println(err)
