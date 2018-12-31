@@ -47,14 +47,14 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatal(err)
 		}
-		var mtg meeting
-		json.Unmarshal(content, &mtg)
+		var mtgs meetings
+		json.Unmarshal(content, &mtgs)
 		// TODO: remove dummy impl
 		now := time.Now()
 		startD := time.Date(now.Year(), now.Month(), now.Day(), 10, 0, 0, 0, now.Location())
 		endD := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, now.Location())
-		pomos := CalcPomos([]meeting{mtg}, startD, endD, 25, 5)
-		display([]meeting{mtg}, pomos)
+		pomos := CalcPomos(mtgs.Meetings, startD, endD, 25, 5)
+		display(mtgs.Meetings, pomos)
 	},
 }
 

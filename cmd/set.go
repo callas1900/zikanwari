@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
@@ -47,13 +48,15 @@ For example:
 		fmt.Println(args)
 		inputDays := strings.Split(args[len(args)-1], "-")
 		start, end := buildInputDays(inputDays)
-		if !checkMeetingAvailable(start, end) {
-			fmt.Errorf("conflict with another meeting\n")
+		if checkMeetingAvailable(start, end) {
+			fmt.Println("conflict with another meeting")
+			os.Exit(1)
 		}
 		args = args[:len(args)-1]
 		title := strings.Join(args, " ")
 		m := meeting{1, title, Schedule{start, end}}
-		b, err := json.Marshal(m)
+		ms := meetings{[]meeting{m}}
+		b, err := json.Marshal(ms)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -62,7 +65,6 @@ For example:
 }
 
 func checkMeetingAvailable(start time.Time, end time.Time) bool {
-
 	return false
 }
 
