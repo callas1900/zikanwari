@@ -27,10 +27,9 @@ import (
 )
 
 type Pomo struct {
-	Id        int       `json:"id"`
-	Name      string    `json:"title"`
-	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
+	Id   int      `json:"id"`
+	Name string   `json:"title"`
+	Time Schedule `json:"time"`
 }
 
 // showCmd represents the show command
@@ -50,7 +49,7 @@ to quickly create a Cobra application.`,
 		}
 		var mtg meeting
 		json.Unmarshal(content, &mtg)
-		// TODO: dummy impl
+		// TODO: remove dummy impl
 		now := time.Now()
 		startD := time.Date(now.Year(), now.Month(), now.Day(), 10, 0, 0, 0, now.Location())
 		endD := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, now.Location())
@@ -69,9 +68,9 @@ func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest in
 		if !end.After(e) {
 			break
 		}
-		pomo := Pomo{0, "", s, e}
+		pomo := Pomo{0, "", Schedule{s, e}}
 		for _, mtg := range mtgs {
-			if checkConflict(mtg, pomo) {
+			if CheckConflictSchedule(mtg.Time, pomo.Time) {
 				count++
 				pomo.Id = count
 				pomos[count-1] = pomo
@@ -83,10 +82,6 @@ func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest in
 	return pomos
 }
 
-func checkConflict(mtg meeting, pomo Pomo) bool {
-	return !pomo.EndTime.After(mtg.StartTime) || !pomo.StartTime.Before(mtg.EndTime)
-}
-
 func display(mtgs []meeting, pomos []Pomo) {
 	const layout = "15:04"
 	for _, pomo := range pomos {
@@ -94,11 +89,11 @@ func display(mtgs []meeting, pomos []Pomo) {
 			break
 		}
 		for _, mtg := range mtgs {
-			if !mtg.StartTime.After(pomo.StartTime) && !mtg.EndTime.Before(pomo.StartTime) {
-				fmt.Printf("==== %s %s-%s =====\n", mtg.Title, mtg.StartTime.Format(layout), mtg.EndTime.Format(layout))
+			if PreviousSchedule(mtg.Time, pomo.Time) {
+				fmt.Printf("==== %s %s-%s =====\n", mtg.Title, mtg.Time.Start.Format(layout), mtg.Time.End.Format(layout))
 			}
 		}
-		fmt.Printf("[] %v %s-%s %s \n", pomo.Id, pomo.StartTime.Format(layout), pomo.EndTime.Format(layout), pomo.Name)
+		fmt.Printf("[] %v %s-%s %s \n", pomo.Id, pomo.Time.Start.Format(layout), pomo.Time.End.Format(layout), pomo.Name)
 	}
 }
 

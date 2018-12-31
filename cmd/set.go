@@ -24,11 +24,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type meetings struct {
+	Meetings []meeting `json:"meetings"`
+}
+
 type meeting struct {
-	Id        int       `json:"id"`
-	Title     string    `json:"title"`
-	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
+	Id    int      `json:"id"`
+	Title string   `json:"title"`
+	Time  Schedule `json:"time"`
 }
 
 // setCmd represents the set command
@@ -37,20 +40,27 @@ var setCmd = &cobra.Command{
 	Short: "set meeting schedule",
 	Long: `set meeting schedule.
 For example:
-
+	* zikanwari set Mtg 11:00-13:00
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(args)
 		inputs := strings.Split(args[1], "-")
 		start, end := buildInputDays(inputs)
-		m := meeting{1, args[0], start, end}
+		if !checkMeetingAvailable(start, end) {
+			fmt.Errorf("conflict with another meeting\n")
+		}
+		m := meeting{1, args[0], Schedule{start, end}}
 		b, err := json.Marshal(m)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println(m)
 		ioutil.WriteFile("data.json", b, 0644)
 	},
+}
+
+func checkMeetingAvailable(start time.Time, end time.Time) bool {
+
+	return false
 }
 
 func buildInputDays(days []string) (time.Time, time.Time) {
