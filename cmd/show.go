@@ -20,10 +20,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-
-	"encoding/json"
-	"io/ioutil"
-	"log"
 )
 
 type Pomo struct {
@@ -43,18 +39,13 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		content, err := ioutil.ReadFile(Conf.DataJSONPath)
-		if err != nil {
-			log.Fatal(err)
-		}
-		var mtgs meetings
-		json.Unmarshal(content, &mtgs)
+		mtgs := ReadMeetings()
 		// TODO: remove dummy impl
 		now := time.Now()
 		startD := time.Date(now.Year(), now.Month(), now.Day(), 10, 0, 0, 0, now.Location())
 		endD := time.Date(now.Year(), now.Month(), now.Day(), 18, 0, 0, 0, now.Location())
-		pomos := CalcPomos(mtgs.Meetings, startD, endD, 25, 5)
-		display(mtgs.Meetings, pomos)
+		pomos := CalcPomos(mtgs, startD, endD, 25, 5)
+		display(mtgs, pomos)
 	},
 }
 
