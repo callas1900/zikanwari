@@ -15,25 +15,13 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 )
-
-type meetings struct {
-	Meetings []meeting `json:"meetings"`
-}
-
-type meeting struct {
-	Id    int      `json:"id"`
-	Title string   `json:"title"`
-	Time  Schedule `json:"time"`
-}
 
 // setCmd represents the set command
 var setCmd = &cobra.Command{
@@ -45,27 +33,38 @@ For example:
 	* zikanwari set Launch with team 11:00-13:00
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(args)
 		inputDays := strings.Split(args[len(args)-1], "-")
 		start, end := buildInputDays(inputDays)
-		if checkMeetingAvailable(start, end) {
+		if !checkMeetingAvailable(start, end) {
 			fmt.Println("conflict with another meeting")
 			os.Exit(1)
 		}
 		args = args[:len(args)-1]
 		title := strings.Join(args, " ")
 		m := meeting{1, title, Schedule{start, end}}
-		ms := meetings{[]meeting{m}}
-		b, err := json.Marshal(ms)
-		if err != nil {
-			fmt.Println(err)
-		}
-		ioutil.WriteFile("data.json", b, 0644)
+		mslice := ReadMeetings()
+		mslice = append(mslice, m)
+		// ms := meetings{[]meeting{m}}
+		ms := meetings{mslice}
+		WriteMeetings(ms)
+		// b, err := json.Marshal(ms)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
+		// ioutil.WriteFile("data.json", b, 0644)
 	},
 }
 
 func checkMeetingAvailable(start time.Time, end time.Time) bool {
-	return false
+	mtgs := ReadMeetings()
+	source := Schedule{start, end}
+	for _, mtg := range mtgs {
+		check := CheckConflictSchedule(source, mtg.Time)
+		if check {
+			return true
+		}
+	}
+	return true
 }
 
 func buildInputDays(days []string) (time.Time, time.Time) {

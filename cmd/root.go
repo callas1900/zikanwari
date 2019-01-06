@@ -25,10 +25,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Config struct {
-	DataJSONPath string
-}
-
 var cfgFile string
 
 var Conf Config

@@ -60,12 +60,16 @@ func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest in
 			break
 		}
 		pomo := Pomo{0, "", Schedule{s, e}}
+		c := false
 		for _, mtg := range mtgs {
-			if CheckConflictSchedule(mtg.Time, pomo.Time) {
-				count++
-				pomo.Id = count
-				pomos[count-1] = pomo
+			if CheckConflictSchedule(pomo.Time, mtg.Time) {
+				c = true
 			}
+		}
+		if !c {
+			count++
+			pomo.Id = count
+			pomos[count-1] = pomo
 		}
 		s = e.Add(time.Duration(rest) * time.Minute)
 		e = s.Add(time.Duration(unit) * time.Minute)
