@@ -64,29 +64,36 @@ func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest in
 		for _, mtg := range mtgs {
 			if CheckConflictSchedule(pomo.Time, mtg.Time) {
 				c = true
+				s = mtg.Time.End
+				e = s.Add(time.Duration(unit) * time.Minute)
+				break
 			}
 		}
 		if !c {
 			count++
 			pomo.Id = count
 			pomos[count-1] = pomo
+			s = e.Add(time.Duration(rest) * time.Minute)
+			e = s.Add(time.Duration(unit) * time.Minute)
 		}
-		s = e.Add(time.Duration(rest) * time.Minute)
-		e = s.Add(time.Duration(unit) * time.Minute)
 	}
 	return pomos
 }
 
 func display(mtgs []meeting, pomos []Pomo) {
 	const layout = "15:04"
-	for _, pomo := range pomos {
+	for index, pomo := range pomos {
+		var lastPomo Pomo
 		if pomo.Id == 0 {
-			break
+			lastPomo = pomos[index-1]
 		}
 		for _, mtg := range mtgs {
-			if PreviousSchedule(mtg.Time, pomo.Time) {
+			if PreviousSchedule(mtg.Time, pomo.Time) || (lastPomo.Id != 0 && !lastPomo.Time.End.After(mtg.Time.Start)) {
 				fmt.Printf("==== %s %s-%s =====\n", mtg.Title, mtg.Time.Start.Format(layout), mtg.Time.End.Format(layout))
 			}
+		}
+		if pomo.Id == 0 {
+			break
 		}
 		fmt.Printf("[] %v %s-%s %s \n", pomo.Id, pomo.Time.Start.Format(layout), pomo.Time.End.Format(layout), pomo.Name)
 	}
