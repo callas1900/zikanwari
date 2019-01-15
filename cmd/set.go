@@ -42,16 +42,25 @@ For example:
 		args = args[:len(args)-1]
 		title := strings.Join(args, " ")
 		m := meeting{1, title, Schedule{start, end}}
-		mslice := ReadMeetings()
-		mslice = append(mslice, m)
-		// ms := meetings{[]meeting{m}}
-		ms := meetings{mslice}
+		mtgs := ReadMeetings()
+		pos := 0
+		for i, mtg := range mtgs {
+			if !m.Time.Start.After(mtg.Time.Start) {
+				pos = i
+				break
+			}
+			if len(mtgs)-1 == i {
+				pos = -1
+			}
+		}
+		if len(mtgs) == 0 || pos == -1 {
+			mtgs = append(mtgs, m)
+		} else {
+			mtgs = append(mtgs[:pos+1], mtgs[pos:]...)
+			mtgs[pos] = m
+		}
+		ms := meetings{mtgs}
 		WriteMeetings(ms)
-		// b, err := json.Marshal(ms)
-		// if err != nil {
-		// 	fmt.Println(err)
-		// }
-		// ioutil.WriteFile("data.json", b, 0644)
 	},
 }
 

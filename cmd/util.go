@@ -29,6 +29,7 @@ type Schedule struct {
 func ReadMeetings() []meeting {
 	content, err := ioutil.ReadFile(Conf.DataJSONPath)
 	if err != nil {
+		fmt.Println(err, Conf.DataJSONPath)
 		return []meeting{}
 	}
 	var mtgs meetings

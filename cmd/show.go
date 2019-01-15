@@ -81,15 +81,13 @@ func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest in
 }
 
 func display(mtgs []meeting, pomos []Pomo) {
+	cursor := 0
 	const layout = "15:04"
-	for index, pomo := range pomos {
-		var lastPomo Pomo
-		if pomo.Id == 0 {
-			lastPomo = pomos[index-1]
-		}
-		for _, mtg := range mtgs {
-			if PreviousSchedule(mtg.Time, pomo.Time) || (lastPomo.Id != 0 && !lastPomo.Time.End.After(mtg.Time.Start)) {
-				fmt.Printf("==== %s %s-%s =====\n", mtg.Title, mtg.Time.Start.Format(layout), mtg.Time.End.Format(layout))
+	for _, pomo := range pomos {
+		if len(mtgs) > 0 {
+			for len(mtgs) > cursor && !mtgs[cursor].Time.Start.After(pomo.Time.Start) {
+				fmt.Printf("==== %s %s-%s =====\n", mtgs[cursor].Title, mtgs[cursor].Time.Start.Format(layout), mtgs[cursor].Time.End.Format(layout))
+				cursor++
 			}
 		}
 		if pomo.Id == 0 {
