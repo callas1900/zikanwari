@@ -86,7 +86,7 @@ func display(mtgs []meeting, pomos []Pomo) {
 	for _, pomo := range pomos {
 		if len(mtgs) > 0 {
 			for len(mtgs) > cursor && !mtgs[cursor].Time.Start.After(pomo.Time.Start) {
-				fmt.Printf("==== %s %s-%s =====\n", mtgs[cursor].Title, mtgs[cursor].Time.Start.Format(layout), mtgs[cursor].Time.End.Format(layout))
+				displayMeeting(mtgs[cursor])
 				cursor++
 			}
 		}
@@ -95,6 +95,14 @@ func display(mtgs []meeting, pomos []Pomo) {
 		}
 		fmt.Printf("[] %v %s-%s %s \n", pomo.Id, pomo.Time.Start.Format(layout), pomo.Time.End.Format(layout), pomo.Name)
 	}
+	for i := cursor; i < len(mtgs); i++ {
+		displayMeeting(mtgs[i])
+	}
+}
+
+func displayMeeting(mtg meeting) {
+	const layout = "15:04"
+	fmt.Printf("==== %s-%s %s =====\n", mtg.Time.Start.Format(layout), mtg.Time.End.Format(layout), mtg.Title)
 }
 
 func init() {
