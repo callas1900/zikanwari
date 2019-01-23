@@ -97,11 +97,10 @@ func display(mtgs []meeting, pomos []Pomo) {
 		}
 		if !time.Now().After(pomo.Time.End) && !time.Now().Before(pomo.Time.Start) {
 			point = "*"
-		}
-		displayPomo(pomo, point)
-		if point == "*" {
+		} else if !time.Now().After(pomo.Time.End) {
 			point = ""
 		}
+		displayPomo(pomo, point)
 	}
 	for i := cursor; i < len(mtgs); i++ {
 		displayMeeting(mtgs[i])
