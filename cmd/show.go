@@ -22,6 +22,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const layout = "15:04"
+
 type Pomo struct {
 	Id   int      `json:"id"`
 	Name string   `json:"title"`
@@ -82,7 +84,7 @@ func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest in
 
 func display(mtgs []meeting, pomos []Pomo) {
 	cursor := 0
-	const layout = "15:04"
+	point := "x"
 	for _, pomo := range pomos {
 		if len(mtgs) > 0 {
 			for len(mtgs) > cursor && !mtgs[cursor].Time.Start.After(pomo.Time.Start) {
@@ -93,15 +95,24 @@ func display(mtgs []meeting, pomos []Pomo) {
 		if pomo.Id == 0 {
 			break
 		}
-		fmt.Printf("[] %v %s-%s %s \n", pomo.Id, pomo.Time.Start.Format(layout), pomo.Time.End.Format(layout), pomo.Name)
+		if !time.Now().After(pomo.Time.End) && !time.Now().Before(pomo.Time.Start) {
+			point = "*"
+		}
+		displayPomo(pomo, point)
+		if point == "*" {
+			point = ""
+		}
 	}
 	for i := cursor; i < len(mtgs); i++ {
 		displayMeeting(mtgs[i])
 	}
 }
 
+func displayPomo(pomo Pomo, point string) {
+	fmt.Printf("[%v] %v %s-%s %s \n", point, pomo.Id, pomo.Time.Start.Format(layout), pomo.Time.End.Format(layout), pomo.Name)
+}
+
 func displayMeeting(mtg meeting) {
-	const layout = "15:04"
 	fmt.Printf("==== %s-%s %s =====\n", mtg.Time.Start.Format(layout), mtg.Time.End.Format(layout), mtg.Title)
 }
 
