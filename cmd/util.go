@@ -11,8 +11,9 @@ type Config struct {
 	DataJSONPath string
 }
 
-type meetings struct {
+type Data struct {
 	Meetings []meeting `json:"meetings"`
+	Tasks    []Task    `json:"tasks"`
 }
 
 type meeting struct {
@@ -26,23 +27,106 @@ type Schedule struct {
 	End   time.Time
 }
 
-func ReadMeetings() []meeting {
+type Task struct {
+	Id    int    `json:"id"`
+	Title string `json:"title"`
+	posis []int  `json:"posis"`
+}
+
+func readData() Data {
 	content, err := ioutil.ReadFile(Conf.DataJSONPath)
 	if err != nil {
 		fmt.Println(err, Conf.DataJSONPath)
-		return []meeting{}
+		return Data{}
 	}
-	var mtgs meetings
-	json.Unmarshal(content, &mtgs)
-	return mtgs.Meetings
+	var data Data
+	json.Unmarshal(content, &data)
+	return data
 }
 
-func WriteMeetings(ms meetings) {
-	b, err := json.Marshal(ms)
+func writeData(data Data) {
+	b, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println(err)
 	}
 	ioutil.WriteFile("data.json", b, 0644)
+}
+
+func InitData() {
+	data := Data{[]meeting{}, []Task{}}
+	writeData(data)
+}
+
+func ReadMeetings() []meeting {
+	return readData().Meetings
+}
+
+func ReadTasks() []Task {
+	return readData().Tasks
+}
+
+func WriteTasks(task_arr []Task) {
+	data := readData()
+	data.Tasks = task_arr
+	writeData(data)
+}
+
+func WriteMeetings(mtg_arr []meeting) {
+	data := readData()
+	data.Meetings = mtg_arr
+	writeData(data)
+}
+
+func AddMeeting(m meeting) {
+	mtgs := ReadMeetings()
+	pos := 0
+	for i, mtg := range mtgs {
+		if !m.Time.Start.After(mtg.Time.Start) {
+			pos = i
+			break
+		}
+		if len(mtgs)-1 == i {
+			pos = -1
+		}
+	}
+	if len(mtgs) == 0 || pos == -1 {
+		mtgs = append(mtgs, m)
+	} else {
+		mtgs = append(mtgs[:pos+1], mtgs[pos:]...)
+		mtgs[pos] = m
+	}
+	WriteMeetings(mtgs)
+}
+
+func AddTask(title string, posi int) {
+	tasks := ReadTasks()
+	added := false
+	id := 1
+	for _, t := range tasks {
+		if t.Title == title {
+			if !contains(t.posis, posi) {
+				t.posis = append(t.posis, posi)
+			}
+			added = true
+			if id < t.Id {
+				id = t.Id + 1
+			}
+		}
+	}
+	if !added {
+		task := Task{id, title, []int{posi}}
+		tasks = append(tasks, task)
+	}
+	WriteTasks(tasks)
+}
+
+func contains(src []int, e int) bool {
+	for _, v := range src {
+		if e == v {
+			return true
+		}
+	}
+	return false
 }
 
 func CheckConflictSchedule(source Schedule, target Schedule) bool {

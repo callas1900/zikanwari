@@ -15,34 +15,39 @@
 package cmd
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/spf13/cobra"
 )
 
-// initCmd represents the init command
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "initialize stored data",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+// taskCmd represents the task command
+var taskCmd = &cobra.Command{
+	Use:   "task",
+	Short: "A brief description of your command",
+	Long: `create tasks.
+For example:
+	* zikanwari task do something 1,2,3
+	* zikanwari task read email 3`,
 	Run: func(cmd *cobra.Command, args []string) {
-		InitData()
+		// posi_str := strings.Split(args[len(args)-1], ",")
+		posi, _ := strconv.Atoi(args[len(args)-1])
+		args = args[:len(args)-1]
+		title := strings.Join(args, " ")
+		AddTask(title, posi)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(taskCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// taskCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// taskCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
