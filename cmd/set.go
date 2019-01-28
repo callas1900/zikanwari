@@ -43,25 +43,6 @@ For example:
 		title := strings.Join(args, " ")
 		m := meeting{1, title, Schedule{start, end}}
 		AddMeeting(m)
-		// mtgs := ReadMeetings()
-		// pos := 0
-		// for i, mtg := range mtgs {
-		// 	if !m.Time.Start.After(mtg.Time.Start) {
-		// 		pos = i
-		// 		break
-		// 	}
-		// 	if len(mtgs)-1 == i {
-		// 		pos = -1
-		// 	}
-		// }
-		// if len(mtgs) == 0 || pos == -1 {
-		// 	mtgs = append(mtgs, m)
-		// } else {
-		// 	mtgs = append(mtgs[:pos+1], mtgs[pos:]...)
-		// 	mtgs[pos] = m
-		// }
-		// ms := meetings{mtgs}
-		// WriteMeetings(ms)
 	},
 }
 
