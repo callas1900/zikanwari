@@ -98,6 +98,11 @@ func AddMeeting(m meeting) {
 	WriteMeetings(mtgs)
 }
 
+func AddTasks(title string, posis []int) {
+	for _, posi := range posis {
+		AddTask(title, posi)
+	}
+}
 func AddTask(title string, posi int) {
 	tasks := ReadTasks()
 	added := false

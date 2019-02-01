@@ -30,11 +30,20 @@ For example:
 	* zikanwari task do something 1,2,3
 	* zikanwari task read email 3`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// posi_str := strings.Split(args[len(args)-1], ",")
-		posi, _ := strconv.Atoi(args[len(args)-1])
+		posi_strs := strings.Split(args[len(args)-1], ",")
+		var posis = []int{}
+		for _, posi_str := range posi_strs {
+			posi, err := strconv.Atoi(posi_str)
+			if err != nil {
+				panic(err)
+			}
+			posis = append(posis, posi)
+		}
+		// posi_str, _ := strconv.Atoi(args[len(args)-1])
+		// posis := strings.Split(posi_str, ",")
 		args = args[:len(args)-1]
 		title := strings.Join(args, " ")
-		AddTask(title, posi)
+		AddTasks(title, posis)
 	},
 }
 
@@ -49,5 +58,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// taskCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// taskCmd.Flags().BoolP("remove", "r", false, "remove task")
 }
