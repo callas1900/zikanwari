@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strconv"
 	"time"
 )
 
@@ -29,9 +28,9 @@ type Schedule struct {
 }
 
 type Task struct {
-	Id    int      `json:"id"`
-	Title string   `json:"title"`
-	posis []string `json:"positions"`
+	Id        int    `json:"id"`
+	Title     string `json:"title"`
+	Positions []int  `json:"positions"`
 }
 
 func readData() Data {
@@ -69,7 +68,6 @@ func ReadTasks() []Task {
 func WriteTasks(task_arr []Task) {
 	data := readData()
 	data.Tasks = task_arr
-	fmt.Println(task_arr)
 	writeData(data)
 }
 
@@ -103,12 +101,12 @@ func AddMeeting(m meeting) {
 func AddTask(title string, posi int) {
 	tasks := ReadTasks()
 	added := false
-	posi_str := strconv.Itoa(posi)
 	id := 1
-	for _, t := range tasks {
+	for i, t := range tasks {
 		if t.Title == title {
-			if !contains(t.posis, posi_str) {
-				t.posis = append(t.posis, posi_str)
+			if !contains(t.Positions, posi) {
+				t.Positions = append(t.Positions, posi)
+				tasks[i] = t
 			}
 			added = true
 			if id < t.Id {
@@ -117,13 +115,13 @@ func AddTask(title string, posi int) {
 		}
 	}
 	if !added {
-		task := Task{id, title, []string{posi_str}}
+		task := Task{id, title, []int{posi}}
 		tasks = append(tasks, task)
 	}
 	WriteTasks(tasks)
 }
 
-func contains(src []string, e string) bool {
+func contains(src []int, e int) bool {
 	for _, v := range src {
 		if e == v {
 			return true
