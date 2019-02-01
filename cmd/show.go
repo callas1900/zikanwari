@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -83,6 +84,7 @@ func CalcPomos(mtgs []meeting, start time.Time, end time.Time, unit int, rest in
 }
 
 func display(mtgs []meeting, pomos []Pomo) {
+	tasks := ReadTasks()
 	cursor := 0
 	point := "x"
 	for _, pomo := range pomos {
@@ -100,15 +102,27 @@ func display(mtgs []meeting, pomos []Pomo) {
 		} else if !time.Now().After(pomo.Time.End) {
 			point = ""
 		}
-		displayPomo(pomo, point)
+		task_str := buildTaskString(tasks, pomo.Id)
+		displayPomo(pomo, point, task_str)
 	}
 	for i := cursor; i < len(mtgs); i++ {
 		displayMeeting(mtgs[i])
 	}
 }
 
-func displayPomo(pomo Pomo, point string) {
-	fmt.Printf("[%v] %v %s-%s %s \n", point, pomo.Id, pomo.Time.Start.Format(layout), pomo.Time.End.Format(layout), pomo.Name)
+func buildTaskString(tasks []Task, id int) string {
+	var task_arr []string
+	for _, task := range tasks {
+		if contains(task.Positions, id) {
+			task_arr = append(task_arr, task.Title)
+		}
+	}
+	return strings.Join(task_arr, ", ")
+}
+
+func displayPomo(pomo Pomo, point string, task_str string) {
+
+	fmt.Printf("[%v] %v %s-%s %s %s\n", point, pomo.Id, pomo.Time.Start.Format(layout), pomo.Time.End.Format(layout), pomo.Name, task_str)
 }
 
 func displayMeeting(mtg meeting) {
