@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const layout = "15:04"
+const time_layout = "15:04"
 
 type Pomo struct {
 	Id   int      `json:"id"`
@@ -46,7 +46,13 @@ to quickly create a Cobra application.`,
 		// TODO: remove dummy impl
 		day := ReadDay()
 		pomos := CalcPomos(mtgs, day.WorkingTime.Start, day.WorkingTime.End, 25, 5)
+		if cmd.Flag("verbose").Changed {
+			displayHeader()
+		}
 		display(mtgs, pomos)
+		if cmd.Flag("verbose").Changed {
+			displayFooter()
+		}
 	},
 }
 
@@ -120,16 +126,50 @@ func buildTaskString(tasks []Task, id int) string {
 
 func displayPomo(pomo Pomo, point string, task_str string) {
 
-	fmt.Printf("[%v] %v %s-%s %s %s\n", point, pomo.Id, pomo.Time.Start.Format(layout), pomo.Time.End.Format(layout), pomo.Name, task_str)
+	fmt.Printf("[%v] %v %s-%s %s %s\n", point, pomo.Id, pomo.Time.Start.Format(time_layout), pomo.Time.End.Format(time_layout), pomo.Name, task_str)
 }
 
 func displayMeeting(mtg meeting) {
-	fmt.Printf("==== %s-%s %s =====\n", mtg.Time.Start.Format(layout), mtg.Time.End.Format(layout), mtg.Title)
+	fmt.Printf("==== %s-%s %s =====\n", mtg.Time.Start.Format(time_layout), mtg.Time.End.Format(time_layout), mtg.Title)
+}
+
+func displayHeader() {
+	const layout = "2006-01-02"
+	fmt.Printf("#### %s\n\n", time.Now().Format(layout))
+}
+func displayFooter() {
+	fmt.Println("-----")
+	// day
+	day := ReadDay()
+	workingS := day.WorkingTime.Start
+	workingE := day.WorkingTime.End
+	fmt.Printf("working: %gh (%s-%s)\n", workingE.Sub(workingS).Hours(), workingS.Format(time_layout), workingE.Format(time_layout))
+	// tasks
+	tasks := ReadTasks()
+	score := map[int]int{}
+	fmt.Printf("task: ")
+	for _, task := range tasks {
+		for _, posi := range task.Positions {
+			if v, ok := score[posi]; ok {
+				score[posi] = v + 1
+			} else {
+				score[posi] = 1
+			}
+		}
+	}
+	for _, task := range tasks {
+		var volume float64
+		for _, posi := range task.Positions {
+			v := float64(1) / float64(score[posi])
+			volume = volume + v
+		}
+		fmt.Printf("%s(%g) ", task.Title, volume)
+	}
+	fmt.Printf("\n-----\n\n")
 }
 
 func init() {
 	rootCmd.AddCommand(showCmd)
-
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -138,5 +178,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// showCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	showCmd.Flags().BoolP("verbose", "v", false, "show header and footer")
 }
