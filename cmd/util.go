@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"time"
 )
 
@@ -12,8 +13,13 @@ type Config struct {
 }
 
 type Data struct {
+	Day      Day       `json:day`
 	Meetings []meeting `json:"meetings"`
 	Tasks    []Task    `json:"tasks"`
+}
+
+type Day struct {
+	WorkingTime Schedule `json:working_time`
 }
 
 type meeting struct {
@@ -52,9 +58,13 @@ func writeData(data Data) {
 	ioutil.WriteFile("data.json", b, 0644)
 }
 
-func InitData() {
-	data := Data{[]meeting{}, []Task{}}
+func InitData(day Schedule) {
+	data := Data{Day{day}, []meeting{}, []Task{}}
 	writeData(data)
+}
+
+func ReadDay() Day {
+	return readData().Day
 }
 
 func ReadMeetings() []meeting {
@@ -133,6 +143,22 @@ func contains(src []int, e int) bool {
 		}
 	}
 	return false
+}
+
+func BuildScheduleStruct(daysString string) Schedule {
+	const layout = "2006-01-02 15:04"
+	days := strings.Split(daysString, "-")
+	now := time.Now()
+	prefix := strings.Split(now.Format(layout), " ")[0]
+	start := buildDay(days[0], prefix, layout)
+	end := buildDay(days[1], prefix, layout)
+	return Schedule{start, end}
+}
+
+func buildDay(day string, prefix string, layout string) time.Time {
+	dayString := strings.Join([]string{prefix, day}, " ")
+	dayTime, _ := time.ParseInLocation(layout, dayString, time.Now().Location())
+	return dayTime
 }
 
 func CheckConflictSchedule(source Schedule, target Schedule) bool {

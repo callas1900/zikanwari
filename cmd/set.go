@@ -33,15 +33,14 @@ For example:
 	* zikanwari set Launch with team 11:00-13:00
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		inputDays := strings.Split(args[len(args)-1], "-")
-		start, end := buildInputDays(inputDays)
-		if !checkMeetingAvailable(start, end) {
+		schedule := BuildScheduleStruct(args[len(args)-1])
+		if !checkMeetingAvailable(schedule.Start, schedule.End) {
 			fmt.Println("conflict with another meeting")
 			os.Exit(1)
 		}
 		args = args[:len(args)-1]
 		title := strings.Join(args, " ")
-		m := meeting{1, title, Schedule{start, end}}
+		m := meeting{1, title, schedule}
 		AddMeeting(m)
 	},
 }
@@ -56,21 +55,6 @@ func checkMeetingAvailable(start time.Time, end time.Time) bool {
 		}
 	}
 	return true
-}
-
-func buildInputDays(days []string) (time.Time, time.Time) {
-	const layout = "2006-01-02 15:04"
-	now := time.Now()
-	prefix := strings.Split(now.Format(layout), " ")[0]
-	start := buildDay(days[0], prefix, layout)
-	end := buildDay(days[1], prefix, layout)
-	return start, end
-}
-
-func buildDay(day string, prefix string, layout string) time.Time {
-	dayString := strings.Join([]string{prefix, day}, " ")
-	dayTime, _ := time.ParseInLocation(layout, dayString, time.Now().Location())
-	return dayTime
 }
 
 func init() {
