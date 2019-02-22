@@ -40,14 +40,14 @@ type Task struct {
 	Positions []int  `json:"positions"`
 }
 
-func getDataJsonPath() string {
+func getDataJSONPath() string {
 	return Conf.ConfigDir + Conf.DataJSONName
 }
 
 func readData() Data {
-	content, err := ioutil.ReadFile(getDataJsonPath())
+	content, err := ioutil.ReadFile(getDataJSONPath())
 	if err != nil {
-		fmt.Println(err, getDataJsonPath())
+		fmt.Println(err, getDataJSONPath())
 		return Data{}
 	}
 	var data Data
@@ -60,7 +60,7 @@ func writeData(data Data) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	ioutil.WriteFile(getDataJsonPath(), b, 0644)
+	ioutil.WriteFile(getDataJSONPath(), b, 0644)
 }
 
 func InitData(day Schedule) {
