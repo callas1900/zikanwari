@@ -9,7 +9,8 @@ import (
 )
 
 type Config struct {
-	DataJSONPath string
+	ConfigDir    string
+	DataJSONName string
 }
 
 type Data struct {
@@ -39,10 +40,14 @@ type Task struct {
 	Positions []int  `json:"positions"`
 }
 
+func getDataJsonPath() string {
+	return Conf.ConfigDir + Conf.DataJSONName
+}
+
 func readData() Data {
-	content, err := ioutil.ReadFile(Conf.DataJSONPath)
+	content, err := ioutil.ReadFile(getDataJsonPath())
 	if err != nil {
-		fmt.Println(err, Conf.DataJSONPath)
+		fmt.Println(err, getDataJsonPath())
 		return Data{}
 	}
 	var data Data
@@ -55,7 +60,7 @@ func writeData(data Data) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	ioutil.WriteFile("data.json", b, 0644)
+	ioutil.WriteFile(getDataJsonPath(), b, 0644)
 }
 
 func InitData(day Schedule) {

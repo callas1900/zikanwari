@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"log"
 
@@ -60,7 +61,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -78,8 +79,8 @@ func initConfig() {
 		}
 
 		// Search config in home directory with name ".zikanwari" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".zikanwari")
+		viper.AddConfigPath(strings.Join([]string{home, ".zikanwari"}, "/"))
+		viper.SetConfigName("config")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -93,4 +94,5 @@ func initConfig() {
 		log.Fatal(err)
 		os.Exit(1)
 	}
+	Conf.ConfigDir = strings.Split(viper.ConfigFileUsed(), "config")[0]
 }
