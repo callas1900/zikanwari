@@ -1,21 +1,20 @@
 # zikanwari
 
 ## Installation
+
+### using repository
+
 ```
+go ${your_go_path}/src
 git clone https://github.com/callas1900/zikanwari.git
 cd zikanwari
-go build
-mv zikanwari ${AS_YOU_WANT}
+go install
 ```
 then create configuration file as below
 ```
-cat ~/.zikanwari.yaml
-DataJsonPath: ./data.json
+mkdir ~/.zikanwari
+echo "datajsonname: data.json" ~/.zikanwari/config.yaml
 ```
-
-
-### requirements
-* golang
 
 ## How to use
 
