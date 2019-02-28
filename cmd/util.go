@@ -68,6 +68,12 @@ func InitData(day Schedule) {
 	writeData(data)
 }
 
+func InitWorkingTime(day Schedule) {
+	data := readData()
+	data.Day = Day{day}
+	writeData(data)
+}
+
 func ReadDay() Day {
 	return readData().Day
 }
