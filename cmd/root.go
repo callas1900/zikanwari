@@ -96,5 +96,11 @@ func initConfig() {
 		os.Exit(1)
 	}
 
+	if Conf.pomoTime == 0 {
+		Conf.pomoTime = 25
+	}
+	if Conf.pomoRest == 0 {
+		Conf.pomoRest = 5
+	}
 	Conf.ConfigDir = strings.Split(viper.ConfigFileUsed(), "config")[0]
 }

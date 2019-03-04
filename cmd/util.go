@@ -11,6 +11,8 @@ import (
 type Config struct {
 	ConfigDir    string
 	DataJSONName string
+	pomoTime     int
+	pomoRest     int
 }
 
 type Data struct {

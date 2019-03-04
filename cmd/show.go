@@ -45,7 +45,7 @@ to quickly create a Cobra application.`,
 		mtgs := ReadMeetings()
 		// TODO: remove dummy impl
 		day := ReadDay()
-		pomos := CalcPomos(mtgs, day.WorkingTime.Start, day.WorkingTime.End, 25, 5)
+		pomos := CalcPomos(mtgs, day.WorkingTime.Start, day.WorkingTime.End, Conf.pomoTime, Conf.pomoRest)
 		if cmd.Flag("verbose").Changed {
 			displayHeader()
 		}
@@ -163,7 +163,8 @@ func displayFooter() {
 			v := float64(1) / float64(score[posi])
 			volume = volume + v
 		}
-		fmt.Printf("%s(%g) ", task.Title, volume)
+		mins := volume * float64(Conf.pomoTime+Conf.pomoRest)
+		fmt.Printf("%s(%gh) ", task.Title, mins/60)
 	}
 	fmt.Printf("\n-----\n\n")
 }
