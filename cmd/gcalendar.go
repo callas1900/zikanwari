@@ -78,6 +78,19 @@ func main(cmd *cobra.Command) {
 	} else {
 		const layout = "01-02 15:04"
 		for _, item := range events.Items {
+			isDeclined := false
+			for _, attendee := range item.Attendees {
+				if attendee.Self {
+					if attendee.ResponseStatus == "declined" {
+						isDeclined = true
+					}
+					break
+				}
+			}
+			if isDeclined {
+				continue
+			}
+
 			start := item.Start.DateTime
 			if start == "" {
 				start = item.Start.Date
@@ -87,7 +100,7 @@ func main(cmd *cobra.Command) {
 				end = item.End.Date
 			}
 			hours, day := changeDateFormat(start, end)
-			fmt.Printf("[%v %v] %v)\n", day.Format("01/02"), hours, item.Summary)
+			fmt.Printf("[%v %v] %v\n", day.Format("01/02"), hours, item.Summary)
 			if day.Day() == time.Now().Day() && day.Month() == time.Now().Month() && cmd.Flag("import").Changed {
 				fmt.Println("---> imported")
 				Set(item.Summary, hours)
