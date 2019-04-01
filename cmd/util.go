@@ -46,6 +46,10 @@ func getDataJSONPath() string {
 	return Conf.ConfigDir + Conf.DataJSONName
 }
 
+func GetConfigPath() string {
+	return Conf.ConfigDir
+}
+
 func readData() Data {
 	content, err := ioutil.ReadFile(getDataJSONPath())
 	if err != nil {

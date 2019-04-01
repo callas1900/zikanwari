@@ -40,8 +40,16 @@ to quickly create a Cobra application.`,
 	},
 }
 
+func getCredentialFilePath() string {
+	return GetConfigPath() + "credentials.json"
+}
+
+func getTokenFilePath() string {
+	return GetConfigPath() + "token.json"
+}
+
 func main() {
-	b, err := ioutil.ReadFile("credentials.json")
+	b, err := ioutil.ReadFile(getCredentialFilePath())
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
