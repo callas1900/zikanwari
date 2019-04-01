@@ -36,7 +36,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		main()
+		main(cmd)
 	},
 }
 
@@ -48,7 +48,7 @@ func getTokenFilePath() string {
 	return GetConfigPath() + "token.json"
 }
 
-func main() {
+func main(cmd *cobra.Command) {
 	b, err := ioutil.ReadFile(getCredentialFilePath())
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
@@ -86,14 +86,20 @@ func main() {
 			if end == "" {
 				end = item.End.Date
 			}
-			fmt.Printf("[%v-%v] %v)\n", changeDateFormat(start, layout), changeDateFormat(end, time_layout), item.Summary)
+			hours, day := changeDateFormat(start, end)
+			fmt.Printf("[%v %v] %v)\n", day.Format("01/02"), hours, item.Summary)
+			if day.Day() == time.Now().Day() && day.Month() == time.Now().Month() && cmd.Flag("import").Changed {
+				fmt.Println("---> imported")
+				Set(item.Summary, hours)
+			}
 		}
 	}
 }
 
-func changeDateFormat(in string, layout string) string {
-	t, _ := time.Parse(time.RFC3339Nano, in)
-	return t.Format(layout)
+func changeDateFormat(start string, end string) (string, time.Time) {
+	st, _ := time.Parse(time.RFC3339Nano, start)
+	et, _ := time.Parse(time.RFC3339Nano, end)
+	return st.Format(time_layout) + "-" + et.Format(time_layout), st
 }
 
 func init() {
@@ -107,5 +113,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// gcalendarCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	gcalendarCmd.Flags().BoolP("import", "i", false, "import from gcalendar")
 }

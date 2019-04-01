@@ -33,16 +33,21 @@ For example:
 	* zikanwari set Launch with team 11:00-13:00
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		schedule := BuildScheduleStruct(args[len(args)-1])
-		if !checkMeetingAvailable(schedule.Start, schedule.End) {
-			fmt.Println("conflict with another meeting")
-			os.Exit(1)
-		}
+		scheduleStr := args[len(args)-1]
 		args = args[:len(args)-1]
 		title := strings.Join(args, " ")
-		m := meeting{1, title, schedule}
-		AddMeeting(m)
+		Set(title, scheduleStr)
 	},
+}
+
+func Set(title string, scheduleStr string) {
+	schedule := BuildScheduleStruct(scheduleStr)
+	if !checkMeetingAvailable(schedule.Start, schedule.End) {
+		fmt.Println("conflict with another meeting")
+		os.Exit(1)
+	}
+	m := meeting{1, title, schedule}
+	AddMeeting(m)
 }
 
 func checkMeetingAvailable(start time.Time, end time.Time) bool {
