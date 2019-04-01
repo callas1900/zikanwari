@@ -76,14 +76,24 @@ func main() {
 	if len(events.Items) == 0 {
 		fmt.Println("No upcoming events found.")
 	} else {
+		const layout = "01-02 15:04"
 		for _, item := range events.Items {
-			date := item.Start.DateTime
-			if date == "" {
-				date = item.Start.Date
+			start := item.Start.DateTime
+			if start == "" {
+				start = item.Start.Date
 			}
-			fmt.Printf("%v (%v)\n", item.Summary, date)
+			end := item.End.DateTime
+			if end == "" {
+				end = item.End.Date
+			}
+			fmt.Printf("[%v-%v] %v)\n", changeDateFormat(start, layout), changeDateFormat(end, time_layout), item.Summary)
 		}
 	}
+}
+
+func changeDateFormat(in string, layout string) string {
+	t, _ := time.Parse(time.RFC3339Nano, in)
+	return t.Format(layout)
 }
 
 func init() {
