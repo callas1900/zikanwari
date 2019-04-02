@@ -27,8 +27,9 @@ import (
 
 // gcalendarCmd represents the gcalendar command
 var gcalendarCmd = &cobra.Command{
-	Use:   "gcalendar",
-	Short: "A brief description of your command",
+	Use:     "gcalendar",
+	Aliases: []string{"gcal"},
+	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -77,6 +78,8 @@ func main(cmd *cobra.Command) {
 		fmt.Println("No upcoming events found.")
 	} else {
 		const layout = "01-02 15:04"
+		const layout2 = "2006-01-02"
+		displayDay := time.Now()
 		for _, item := range events.Items {
 			isDeclined := false
 			for _, attendee := range item.Attendees {
@@ -91,16 +94,29 @@ func main(cmd *cobra.Command) {
 				continue
 			}
 
+			noTimeSchedule := false
 			start := item.Start.DateTime
 			if start == "" {
+				noTimeSchedule = true
 				start = item.Start.Date
 			}
 			end := item.End.DateTime
 			if end == "" {
 				end = item.End.Date
 			}
-			hours, day := changeDateFormat(start, end)
-			fmt.Printf("[%v %v] %v\n", day.Format("01/02"), hours, item.Summary)
+			var hours string
+			var day time.Time
+			if noTimeSchedule {
+				day, _ = time.Parse(layout2, start)
+			} else {
+				hours, day = changeDateFormat(start, end)
+			}
+			if displayDay.YearDay() != day.YearDay() {
+				fmt.Printf("\n%v:\n", day.Format(layout2))
+				displayDay = day
+			}
+
+			fmt.Printf("[%v] %v\n", hours, item.Summary)
 			if day.Day() == time.Now().Day() && day.Month() == time.Now().Month() && cmd.Flag("import").Changed {
 				fmt.Println("---> imported")
 				Set(item.Summary, hours)
@@ -110,8 +126,11 @@ func main(cmd *cobra.Command) {
 }
 
 func changeDateFormat(start string, end string) (string, time.Time) {
-	st, _ := time.Parse(time.RFC3339Nano, start)
-	et, _ := time.Parse(time.RFC3339Nano, end)
+	st, e := time.Parse(time.RFC3339Nano, start)
+	if e != nil {
+		fmt.Println()
+	}
+	et, e := time.Parse(time.RFC3339Nano, end)
 	return st.Format(time_layout) + "-" + et.Format(time_layout), st
 }
 

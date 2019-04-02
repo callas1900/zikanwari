@@ -33,8 +33,9 @@ type Pomo struct {
 
 // showCmd represents the show command
 var showCmd = &cobra.Command{
-	Use:   "show",
-	Short: "show pomos and meetings",
+	Use:     "show",
+	Aliases: []string{"s"},
+	Short:   "show pomos and meetings",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 

@@ -23,8 +23,9 @@ import (
 
 // taskCmd represents the task command
 var taskCmd = &cobra.Command{
-	Use:   "task",
-	Short: "A brief description of your command",
+	Use:     "task",
+	Aliases: []string{"t"},
+	Short:   "A brief description of your command",
 	Long: `create tasks.
 For example:
 	* zikanwari task do something 1,2,3
