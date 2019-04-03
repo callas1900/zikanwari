@@ -52,7 +52,7 @@ to quickly create a Cobra application.`,
 		}
 		display(mtgs, pomos)
 		if cmd.Flag("verbose").Changed {
-			displayFooter()
+			displayFooter(pomos)
 		}
 	},
 }
@@ -138,13 +138,21 @@ func displayHeader() {
 	const layout = "2006-01-02"
 	fmt.Printf("#### %s\n\n", time.Now().Format(layout))
 }
-func displayFooter() {
+func displayFooter(pomos []Pomo) {
 	fmt.Println("-----")
 	// day
 	day := ReadDay()
 	workingS := day.WorkingTime.Start
 	workingE := day.WorkingTime.End
-	fmt.Printf("working: %gh (%s-%s)\n", workingE.Sub(workingS).Hours(), workingS.Format(time_layout), workingE.Format(time_layout))
+	fmt.Printf("work time: %gh (%s-%s)\n", workingE.Sub(workingS).Hours(), workingS.Format(time_layout), workingE.Format(time_layout))
+	pomoCount := 0
+	for _, pomo := range pomos {
+		if pomo.Id > 0 {
+			pomoCount = pomoCount + 1
+		}
+	}
+	min := pomoCount * int(Conf.pomoTime+Conf.pomoRest)
+	fmt.Printf("available: %vh (%vmin) \n", min/60, min)
 	// tasks
 	tasks := ReadTasks()
 	score := map[int]int{}
