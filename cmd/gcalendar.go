@@ -117,7 +117,8 @@ func main(cmd *cobra.Command) {
 			}
 
 			fmt.Printf("[%v] %v\n", hours, item.Summary)
-			if day.Day() == time.Now().Day() && day.Month() == time.Now().Month() && cmd.Flag("import").Changed {
+			if day.Day() == time.Now().Day() && day.Month() == time.Now().Month() && cmd.Flag("import").Changed && hours != "" {
+				fmt.Println(hours)
 				fmt.Println("---> imported")
 				Set(item.Summary, hours)
 			}
